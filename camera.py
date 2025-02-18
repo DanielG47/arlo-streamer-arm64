@@ -264,22 +264,10 @@ class Camera(Device):
                 asyncio.create_task(
                     self._log_stderr(self.stream, 'live_stream')
                     )
-
-            if not self.resolution:
-                resolution = await self._get_resolution(stream)
-                if resolution:
-                    logging.debug(
-                        f"{self.name}: resolution found: {resolution}"
-                        )
-                    self.resolution = resolution
-                else:
-                    logging.warning(
-                        f"{self.name}: failed to find resolution, setting "
-                        f"default: {self._default_resolution}"
-                        )
-                    self.resolution = self._default_resolution
         else:
             logging.debug(f"{self.name}: No stream available.")
+
+        await self._set_resolution(stream)
 
     async def _stream_timeout(self):
         await asyncio.sleep(self.timeout)
@@ -398,7 +386,18 @@ class Camera(Device):
 
         return output_path
 
-    async def _get_resolution(self, stream):
+    async def _set_resolution(self, stream):
+        if self.resolution:
+            return
+
+        if not stream:
+            logging.warning(
+                f"{self.name}: failed to find resolution, setting "
+                f"default: {self._default_resolution}"
+                )
+            self.resolution = self._default_resolution
+            return
+
         probe = await asyncio.create_subprocess_exec(
             *['ffprobe', '-v', 'error', '-select_streams', 'v:0',
               '-show_entries', 'stream=width,height', '-of', 'csv=p=0', stream
@@ -419,7 +418,18 @@ class Camera(Device):
             except UnicodeDecodeError:
                 pass
 
-        return result
+        if not result:
+            logging.warning(
+                f"{self.name}: failed to find resolution, setting "
+                f"default: {self._default_resolution}"
+                )
+            self.resolution = self._default_resolution
+            return
+
+        logging.debug(
+            f"{self.name}: resolution found: {result}"
+        )
+        self.resolution = result
 
     async def _log_stderr(self, stream, label):
         """
