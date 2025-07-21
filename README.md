@@ -1,5 +1,8 @@
 [![CodeQL](https://github.com/kaffetorsk/arlo-streamer/actions/workflows/codeql.yml/badge.svg)](https://github.com/kaffetorsk/arlo-streamer/actions/workflows/codeql.yml)
 
+# Note
+The current version of the [pyaarlo](https://github.com/twrecked/pyaarlo) library has issues with loosing connection due to some update in the arlo authentication mechanism. If you have issues with the cameras disappearing after a while try `PYAARLO_RECONNECT_EVERY=110`
+
 # arlo-streamer
 Python script that turns arlo cameras into continuous streams through ffmpeg
 This allow arlo cameras to be used in the NVR of your choosing. (e.g. [Frigate](https://frigate.video/))
@@ -44,6 +47,7 @@ DEBUG: True enables full debug (default: False)
 PYAARLO_BACKEND: Pyaarlo backend. (default determined by pyaarlo). Options are `mqtt` and `sse`.
 PYAARLO_REFRESH_DEVICES: Pyaarlo backend device refresh interval (in hours) (default: never)
 PYAARLO_STREAM_TIMEOUT: Pyaarlo backend event stream timeout (in seconds) (default: never)
+PYAARLO_RECONNECT_EVERY: Pyaarlo periodic reconnect (in minutes) (default: never)
 PYAARLO_STORAGE_DIR: Pyaarlo storage_dir. Define it if you want to change the Pyaarlo storage directory. (default: determined by pyaarlo)
 PYAARLO_ECDH_CURVE: Set the initial ECDH curve for login. Pyaarlo will try others if it fails. (default: determined by pyaarlo)
 IMAP_GRAB_ALL: Grabs all mails in the inbox, to avoid slow indexing problems (default: False)
