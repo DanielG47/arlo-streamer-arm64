@@ -1,0 +1,26 @@
+FROM ubuntu:22.04
+
+# Install dependencies, including FFmpeg and Git
+RUN apt-get update && apt-get upgrade -y
+ARG DEBIAN_FRONTEND=noninteractive
+ARG TZ=Etc/UTC
+RUN apt-get -y install software-properties-common git ffmpeg
+
+# Install Python 3.11
+RUN add-apt-repository ppa:deadsnakes/ppa
+RUN apt-get update
+RUN apt-get -y install python3.11 python3.11-venv python3.11-distutils
+
+# Set up pip for Python 3.11
+RUN python3.11 -m ensurepip
+
+# Unbuffered logging
+ENV PYTHONUNBUFFERED=TRUE
+
+# Copy project files and install requirements
+COPY idle.mp4 eye.png requirements.txt ./
+RUN python3.11 -m pip install -U --upgrade-strategy eager -r requirements.txt
+COPY *.py ./
+
+# Entry point
+ENTRYPOINT ["python3.11", "main.py"]
